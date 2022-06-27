@@ -1,4 +1,4 @@
-4c2ec44f455d665187890b92acab4232 *DESCRIPTION
+4d73afb2fb7799fcb28083e1134fd169 *DESCRIPTION
 aa6eb01c7a18683aab23208bac80ca02 *NAMESPACE
 f1339b59502dccb72e7f941f0b20e28d *R/ConNetGNN.R
 e77cd36cef424cea5e4ab16a84ae0f86 *R/InteNet.R
@@ -6,12 +6,12 @@ e77cd36cef424cea5e4ab16a84ae0f86 *R/InteNet.R
 e4e0419bc79f3897da3216e8dfaa362c *R/Preprocessing.R
 5c8586ef12754bb6544074f7484778ec *R/cpGModule.R
 d6a1ee8bcbd36d89dfa55dbb638d80ac *R/dataset.R
-0f523981752cbda6104d2a79b7f0f985 *R/plotCCNetwork.R
+f6c4ac276c4d76d55d231ed69c4c8ad1 *R/plotCCNetwork.R
 722d9cb4397d8e0079a8e842115c44cf *R/plotGANetwork.R
 a9dfb57f1b860722253e11e5aa3b8280 *R/plotMulPhenGM.R
 ebe400000fd4e68f80e528ef4300fd67 *R/scPathway.R
 378737c6602f5ec596b92dc27bde96bc *R/utils.R
-9e1d5b31b18479f23c842a0fe1a42848 *build/vignette.rds
+ece6d6f1b5d902e6090d3d807b3a0de5 *build/vignette.rds
 14598d74368221d399da6c99ef48fc32 *data/ATAC_net.rda
 b84ea22886a62c83571c1afa00d58088 *data/ConNetGNN_data.rda
 2182c8e1df25c61018ab1205f9fbf66f *data/H9_0h_cpGM_data.rda
@@ -21,13 +21,14 @@ c75e1132f688cb2fef1c91fde7cd079a *data/Hv_exp.rda
 e54e60b6892f1c15e7189f0e64016403 *data/RNA_ATAC_IntNet.rda
 2fa1ddfdfc37f68c3d97902139401f10 *data/RNA_net.rda
 2cc579a5937bad9bc9467724a5ad6b46 *data/scPathway_data.rda
-7e53ab601a9b3611198bf98f17e7c83e *inst/doc/vignette.R
-dd2563434cf295c51cefc28e571de5e5 *inst/doc/vignette.Rmd
-c73637bf46c924bcfe67707b1c97d3d7 *inst/doc/vignette.html
+ce183f7c947773bfb0932a4d11bd67f4 *inst/doc/vignette.R
+9279223a612fc9756634911e19bc1601 *inst/doc/vignette.Rmd
+cd9d92285f3b787f3b010e90415ffb62 *inst/doc/vignette.html
 446d335caf3e600318086bd5cd70a05a *inst/extdata/KEGG_human.gmt
 72b7d24a4cb62dbae8a1ba52a19612d7 *inst/extdata/KEGG_mouse.gmt
 30fdf882cfdd986e3e4f90b671dd7e0b *inst/extdata/flow_diagram1.png
 b65aedd4b50de82d13615b87c3345140 *inst/extdata/flow_diagram2.png
+f259321b065180b8fc3e887a4e8cf74e *inst/extdata/heatmap.png
 fb9baa9dad8ffedc87aaccadbf852f0b *inst/extdata/scapGNN_env.yaml
 39b60ddd6ba27ede2bdade8e60924ae3 *inst/python/AutoEncoder.py
 d93170831fe41da5d0d3dc416f9216b4 *inst/python/GraphAutoEncoder.py
@@ -62,4 +63,4 @@ ffc7d239aca884307ba6b485b769b152 *man/norm1.Rd
 5af005946065edf27c09d486d9e3595c *man/plotMulPhenGM.Rd
 f4ba106779e1fd9b2e0a68c7ebcc3e96 *man/scPathway.Rd
 6ba2b39a005fb3fe42e5e51b43f1e9ef *man/scPathway_data.Rd
-dd2563434cf295c51cefc28e571de5e5 *vignettes/vignette.Rmd
+9279223a612fc9756634911e19bc1601 *vignettes/vignette.Rmd

@@ -1,12 +1,12 @@
 ---
-title: "scapGNN: Graph Neural Network-Based Framework for Single Cell Active Pathways and Gene Modules Activity"
+title: "scapGNN: Graph Neural Network-Based Framework for Single Cell Active Pathways and Gene Modules Analysis"
 author: "Xudong Han and Xuejiang Guo"
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
     toc: true
 vignette: >
-  %\VignetteIndexEntry{Graph Neural Network-Based Framework for Single Cell Active Pathways and Gene Modules Activity}
+  %\VignetteIndexEntry{Graph Neural Network-Based Framework for Single Cell Active Pathways and Gene Modules Analysis}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -139,9 +139,26 @@ library(parallel)
 library(utils)
 # Load the result of the ConNetGNN function.
 data(ConNetGNN_data)
-scPathway_data<-scPathway(ConNetGNN_data,gmt.path=system.file("extdata", "KEGG_human.gmt", package = "scapGNN"),
-                          parallel.cores=1)
+scPathway_data<-scPathway(ConNetGNN_data,gmt.path=system.file("extdata", "KEGG_human.gmt", package = "scapGNN"),parallel.cores=1)
 ```
+
+The result `scPathway_data` of `scPathway()` is a matrix of pathway activity scores, with rows as pathways and columns as cells.
+
+```{r,fig.width = 15,fig.height = 7}
+data(scPathway_data)
+scPathway_data[1:3,1:3]
+
+```
+
+```
+library(pheatmap)
+pheatmap(scPathway_data)
+```
+
+```{r echo = F, out.width = "100%"}
+knitr::include_graphics("../inst/extdata/heatmap.png")
+```
+
 
 Use the `plotGANetwork()` function to plot the gene network of pathways in the specified cell phenotype.
 

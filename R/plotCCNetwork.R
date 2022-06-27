@@ -61,17 +61,17 @@ plotCCNetwork<-function(network.data,cell_id=NULL,cell_cluster=FALSE,vertex.colo
   if(!isLoaded("igraph")){
     stop("The package igraph is not available!")
   }
-
+  
   c_net<-network.data[[1]]
-
+  
   if(cell_cluster==TRUE){
     net<-graph_from_adjacency_matrix(c_net,mode="undirected",weighted=TRUE,diag=TRUE)
     net_c<-cluster_edge_betweenness(net,directed=FALSE)
     cluster_v<-net_c$names
     names(cluster_v)<-paste("cluster",net_c$membership,sep = "_")
-
+    
     cluster_v<-cluster_v[match(cluster_v,colnames(c_net))]
-
+    
     c_p<-names(table(names(cluster_v)))
     cc_amatrix<-NULL
     for(i in 1:length(c_p)){
@@ -81,28 +81,28 @@ plotCCNetwork<-function(network.data,cell_id=NULL,cell_cluster=FALSE,vertex.colo
       }else{
         cc_amatrix<-cbind(apply(c_net[,pp],1,mean),cc_amatrix)
       }
-
+      
     }
-
+    
     cc_amatrix1<-NULL
     for(i in 1:length(c_p)){
       pp<-which(names(cluster_v)==c_p[i])
-
+      
       if(length(pp)==1){
         cc_amatrix1<-cbind(cc_amatrix[pp,],cc_amatrix1)
       }else{
         cc_amatrix1<-cbind(apply(cc_amatrix[pp,],2,mean),cc_amatrix1)
       }
-
-
+      
+      
     }
-
+    
     diag(cc_amatrix1)<-0
     row.names(cc_amatrix1)<-c_p
     colnames(cc_amatrix1)<-c_p
-
+    
     ccnp<-graph_from_adjacency_matrix(cc_amatrix1,mode="undirected",weighted=TRUE,diag=TRUE)
-
+    
     if(is.null(cell_id)){
       if(plotgraph){
         plot(ccnp,vertex.size=vertex.size,vertex.label.cex=vertex.label.cex,vertex.label.dist= vertex.label.dist,
@@ -116,10 +116,10 @@ plotCCNetwork<-function(network.data,cell_id=NULL,cell_cluster=FALSE,vertex.colo
         vertex.colors<-rainbow(length(phen1))
       }
       names(vertex.colors)<-phen1
-
-
+      
+      
       n_v<-list()
-
+      
       for(i in 1:length(c_p)){
         pp<-which(names(cluster_v)==c_p[i])
         cv<-cluster_v[pp]
@@ -131,7 +131,7 @@ plotCCNetwork<-function(network.data,cell_id=NULL,cell_cluster=FALSE,vertex.colo
         n_v[[i]]<-v1/sum(v1)
       }
       names(n_v)<-c_p
-
+      
       if(plotgraph){
         plot(ccnp, vertex.shape="pie", vertex.pie=n_v, vertex.pie.color=list(vertex.colors),
              vertex.size=vertex.size,vertex.label.cex=vertex.label.cex,vertex.label.dist= vertex.label.dist,
@@ -142,49 +142,48 @@ plotCCNetwork<-function(network.data,cell_id=NULL,cell_cluster=FALSE,vertex.colo
         return(ccnp)
       }
     }
-
+    
   }else{
-
-
+    
+    
     c_p<-names(table(names(cell_id)))
-
+    
     if(is.null(vertex.colors)){
       vertex.colors<-rainbow(length(c_p))
+      names(vertex.colors)<-c_p
     }
-    names(vertex.colors)<-c_p
-
+    
+    vertex.colors<-vertex.colors[match(names(vertex.colors),c_p)]
+    
     cc_amatrix<-NULL
     for(i in 1:length(c_p)){
       pp<-which(names(cell_id)==c_p[i])
       cc_amatrix<-cbind(apply(c_net[,pp],1,mean),cc_amatrix)
     }
-
+    
     cc_amatrix1<-NULL
     for(i in 1:length(c_p)){
       pp<-which(names(cell_id)==c_p[i])
       cc_amatrix1<-cbind(apply(cc_amatrix[pp,],2,mean),cc_amatrix1)
     }
-
+    
     diag(cc_amatrix1)<-0
     row.names(cc_amatrix1)<-c_p
     colnames(cc_amatrix1)<-c_p
-
+    
     vg<-unique(as.vector(cc_amatrix1))
     vg<-sort(vg,decreasing = T)
     a<-vg[floor(length(vg)*proportion)]
     cc_amatrix1[cc_amatrix1<=a]<-0
     ccnp<-graph_from_adjacency_matrix(cc_amatrix1,mode="undirected",weighted=TRUE,diag=TRUE)
-
-    dd<-V(ccnp)
-    pp<-match(dd$name,names(vertex.colors))
-    dd$color<-vertex.colors[pp]
-
+    
+    
     if(plotgraph){
       plot(ccnp,vertex.size=vertex.size,vertex.label.cex=vertex.label.cex,vertex.label.dist= vertex.label.dist,
-           vertex.label.color=vertex.label.color,edge.width=E(ccnp)$weight*edge.width,margin=margin,layout=layout)
+           vertex.label.color=vertex.label.color,edge.width=E(ccnp)$weight*edge.width,margin=margin,layout=layout,vertex.color=vertex.colors)
     }else{
       return(ccnp)
     }
   }
-
+  
 }

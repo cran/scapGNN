@@ -24,6 +24,14 @@ summary(Prep_data)
 data(ConNetGNN_data)
 summary(ConNetGNN_data)
 
+## ----fig.width = 15,fig.height = 7--------------------------------------------
+data(scPathway_data)
+scPathway_data[1:3,1:3]
+
+
+## ----echo = F, out.width = "100%"---------------------------------------------
+knitr::include_graphics("../inst/extdata/heatmap.png")
+
 ## ----fig.width = 7,fig.height = 7---------------------------------------------
 library(igraph)
 
