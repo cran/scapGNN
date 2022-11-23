@@ -18,13 +18,14 @@ ConNetGNN(
   gene_val_ratio = 0.05,
   parallel = FALSE,
   seed = 125,
+  GPU.use = FALSE,
   verbose = TRUE
 )
 }
 \arguments{
 \item{Prep_data}{The input data is the result from the \code{Preprocessing} function.}
 
-\item{python.path}{The path to a Python binary.}
+\item{python.path}{The path to a Python binary. If python.path="default", the program will use the current system path to python.}
 
 \item{miniconda.path}{The path in which miniconda will be installed. If the \code{python.path} is NULL and conda or miniconda is not installed in the system, the program will automatically install miniconda according to the path specified by \code{miniconda.path}.}
 
@@ -47,6 +48,8 @@ ConNetGNN(
 \item{parallel}{Whether to use multiple processors to run GAE. Default: \code{FALSE} When \code{parallel=TRUE} (default), tow processors will be used to run GAE.}
 
 \item{seed}{Random number generator seed.}
+
+\item{GPU.use}{Whether to use GPU for GNN modules. Default: \code{FALSE}. If GPU.use=TRUE, CUDA needs to be installed.}
 
 \item{verbose}{Gives information about each step. Default: \code{TRUE}.}
 }

@@ -9,7 +9,7 @@ scPathway(
   gmt.path = NULL,
   pathway.min = 10,
   pathway.max = 500,
-  nperm = 100,
+  nperm = 10,
   parallel.cores = 2,
   rwr.gamma = 0.7,
   verbose = TRUE
@@ -24,7 +24,7 @@ scPathway(
 
 \item{pathway.max}{Maximum size (in genes) for database gene sets to be considered. Default: \code{500}.}
 
-\item{nperm}{Number of random permutations. Default: \code{100}.}
+\item{nperm}{Number of random permutations. Default: \code{10}. We recommend setting it to 100 times.}
 
 \item{parallel.cores}{Number of processors to use when doing the calculations in parallel (default: \code{2}). If \code{parallel.cores=0}, then it will use all available core processors unless we set this argument with a smaller number.}
 
@@ -52,6 +52,10 @@ require(utils)
 # Load the result of the ConNetGNN function.
 data(ConNetGNN_data)
 kegg.path<-system.file("extdata", "KEGG_human.gmt", package = "scapGNN")
+# We recommend the use of a compiler.
+# The compiler package can be used to speed up the operation.
+# library(compiler)
+# scPathway<- cmpfun(scPathway)
 scPathway_data<-scPathway(ConNetGNN_data,gmt.path=kegg.path,
                           pathway.min=25,nperm=6,parallel.cores=1)
 

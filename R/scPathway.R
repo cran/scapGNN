@@ -8,7 +8,7 @@
 ##' @param gmt.path Pathway database in \code{GMT} format.
 ##' @param pathway.min Minimum size (in genes) for pathway to be considered. Default: \code{10}.
 ##' @param pathway.max Maximum size (in genes) for database gene sets to be considered. Default: \code{500}.
-##' @param nperm Number of random permutations. Default: \code{100}.
+##' @param nperm Number of random permutations. Default: \code{10}. We recommend setting it to 100 times.
 ##' @param parallel.cores Number of processors to use when doing the calculations in parallel (default: \code{2}). If \code{parallel.cores=0}, then it will use all available core processors unless we set this argument with a smaller number.
 ##' @param rwr.gamma Restart parameter. Default: \code{0.7}.
 ##' @param verbose Gives information about each step. Default: \code{TRUE}.
@@ -23,7 +23,7 @@
 ##' @importFrom utils txtProgressBar
 ##' @importFrom utils setTxtProgressBar
 ##' @importFrom parallel makeCluster
-##' @importFrom parallel clusterEvalQ
+##' @importFrom parallel clusterExport
 ##' @importFrom parallel parLapply
 ##' @importFrom parallel stopCluster
 ##' @importFrom stats na.omit
@@ -36,12 +36,16 @@
 ##' # Load the result of the ConNetGNN function.
 ##' data(ConNetGNN_data)
 ##' kegg.path<-system.file("extdata", "KEGG_human.gmt", package = "scapGNN")
+##' # We recommend the use of a compiler.
+##' # The compiler package can be used to speed up the operation.
+##' # library(compiler)
+##' # scPathway<- cmpfun(scPathway)
 ##' scPathway_data<-scPathway(ConNetGNN_data,gmt.path=kegg.path,
 ##'                           pathway.min=25,nperm=6,parallel.cores=1)
 ##'
 
 
-scPathway<-function(network.data,gmt.path=NULL,pathway.min=10,pathway.max=500,nperm=100,parallel.cores=2,rwr.gamma=0.7,verbose=TRUE){
+scPathway<-function(network.data,gmt.path=NULL,pathway.min=10,pathway.max=500,nperm=10,parallel.cores=2,rwr.gamma=0.7,verbose=TRUE){
   if(!isLoaded("utils")){
     stop("The package utils is not available!")
   }
@@ -89,8 +93,9 @@ scPathway<-function(network.data,gmt.path=NULL,pathway.min=10,pathway.max=500,np
   }
 
   cl <- makeCluster(parallel.cores)
-  clusterEvalQ(cl,library(scapGNN))
-  #clusterExport(cl,'RWR')
+  #clusterEvalQ(cl,library(scapGNN))
+  clusterExport(cl,'RWR')
+
 
   saPW_matrix<-NULL
 
@@ -106,19 +111,19 @@ scPathway<-function(network.data,gmt.path=NULL,pathway.min=10,pathway.max=500,np
     names(pp)<-pathway_list[[i]]
     pp<-na.omit(pp)
 
-    resW <- RWR(cell_gene_network, pp, tmax = 5000, eps=1e-6, gamma=rwr.gamma,norm = TRUE)
+    resW <- RWR(cell_gene_network, pp, gamma=rwr.gamma)
 
     rdmatrix<-parLapply(cl,1:nperm,function(r,geneindex,pp,cell_gene_network,rwr.gamma,cellindex){
       samplei<-sample(geneindex,size=length(pp))
       names(samplei)<-row.names(cell_gene_network)[samplei]
-      resW_rd <- RWR(cell_gene_network, samplei, tmax = 5000, eps=1e-6, gamma=rwr.gamma,norm = TRUE)
-      return(resW_rd[["p"]][cellindex])
+      resW_rd <- RWR(cell_gene_network, samplei, gamma=rwr.gamma)
+      return(resW_rd[cellindex])
     },geneindex,pp,cell_gene_network,rwr.gamma,cellindex)
     rdmatrix<-do.call("rbind",rdmatrix)
 
     pvalue<-NULL
     for(j in 1:cell_n){
-      pvalue[j]<-sum(rdmatrix[,j]>=resW[["p"]][j])/nperm
+      pvalue[j]<-sum(rdmatrix[,j]>=resW[j])/nperm
     }
     saPW_matrix<-rbind(saPW_matrix,pvalue)
   }

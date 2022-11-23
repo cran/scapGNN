@@ -7,7 +7,7 @@
 ##' association networks for gene-gene, cell-cell.
 ##'
 ##' @param Prep_data The input data is the result from the \code{Preprocessing} function.
-##' @param python.path The path to a Python binary.
+##' @param python.path The path to a Python binary. If python.path="default", the program will use the current system path to python.
 ##' @param miniconda.path The path in which miniconda will be installed. If the \code{python.path} is NULL and conda or miniconda is not installed in the system, the program will automatically install miniconda according to the path specified by \code{miniconda.path}.
 ##' @param AE.epochs The number of epoch for the deep neural network (AE). Default: \code{1000}.
 ##' @param AE.learning.rate Initial learning rate of AE. Default: \code{0.001}.
@@ -20,6 +20,7 @@
 ##' @param parallel Whether to use multiple processors to run GAE. Default: \code{FALSE} When \code{parallel=TRUE} (default), tow processors will be used to run GAE.
 ##' @param seed Random number generator seed.
 ##' @param verbose Gives information about each step. Default: \code{TRUE}.
+##' @param GPU.use Whether to use GPU for GNN modules. Default: \code{FALSE}. If GPU.use=TRUE, CUDA needs to be installed.
 ##'
 ##' @details
 ##' The \code{ConNetGNN} function establishes a graph neural network (GNN) framework to mine latent relationships between genes and cells and within themselves.
@@ -80,7 +81,7 @@
 
 
 ConNetGNN<-function(Prep_data,python.path=NULL,miniconda.path = NULL,AE.epochs=1000,AE.learning.rate=0.001,AE.reg.alpha=0.5,use.VGAE=TRUE,
-                   GAE.epochs = 300,GAE.learning.rate = 0.01,cell_val_ratio=0.05, gene_val_ratio=0.05,parallel=FALSE,seed=125,verbose=TRUE){
+                   GAE.epochs = 300,GAE.learning.rate = 0.01,cell_val_ratio=0.05, gene_val_ratio=0.05,parallel=FALSE,seed=125,GPU.use=FALSE,verbose=TRUE){
   if(!isLoaded("reticulate")){
     stop("The package reticulate is not available!")
   }
@@ -142,8 +143,12 @@ ConNetGNN<-function(Prep_data,python.path=NULL,miniconda.path = NULL,AE.epochs=1
   }
 
   if(!py_available()){
+    if(python.path=="default"){
+      python.path <- Sys.which("python")
+    }
     use_python(python.path, required = T)
   }
+
 
   if(!py_module_available("torch")){
     instPyModule("pytorch")
@@ -188,7 +193,12 @@ ConNetGNN<-function(Prep_data,python.path=NULL,miniconda.path = NULL,AE.epochs=1
     cat("Run AutoEncoder  \n")
   }
 
-  source_python(system.file("python", "AutoEncoder.py", package = "scapGNN"))
+  if(GPU.use==TRUE){
+	source_python(system.file("python", "AutoEncoder_GPU.py", package = "scapGNN"))
+  }else{
+	source_python(system.file("python", "AutoEncoder.py", package = "scapGNN"))
+  }
+
   AE_data<-AE_function(cell_features=cell_features,
                  gene_features=gene_features,
                  exp=HVexp,ltmg_m=LTMG,DNN_epochs=AE.epochs,
@@ -211,7 +221,13 @@ ConNetGNN<-function(Prep_data,python.path=NULL,miniconda.path = NULL,AE.epochs=1
     rt<-c(cell_val_ratio,gene_val_ratio)
     GAE_data<-parLapply(cl,1:2,function(i,AE_data,orig_adj,use.VGAE,GAE.epochs,GAE.learning.rate,seed,python.path,rt){
       use_python(python.path, required = T)
-      source_python(system.file("python", "GraphAutoEncoder.py", package = "scapGNN"))
+
+	  if(GPU.use==TRUE){
+		source_python(system.file("python", "GraphAutoEncoder_GPU.py", package = "scapGNN"))
+	  }else{
+		source_python(system.file("python", "GraphAutoEncoder.py", package = "scapGNN"))
+	  }
+
       res<-GAE_function(net_m=orig_adj[[i]],feature_m=AE_data[[i+1]],
                         use_model=use.VGAE,GAE_epochs=GAE.epochs,
                       GAE_learning_rate=GAE.learning.rate,seed=seed,ratio_val=rt[i])
@@ -219,7 +235,12 @@ ConNetGNN<-function(Prep_data,python.path=NULL,miniconda.path = NULL,AE.epochs=1
     },AE_data,orig_adj,use.VGAE,GAE.epochs,GAE.learning.rate,seed,python.path,rt)
     stopCluster(cl)
   }else{
-    source_python(system.file("python", "GraphAutoEncoder.py", package = "scapGNN"))
+	if(GPU.use==TRUE){
+		source_python(system.file("python", "GraphAutoEncoder_GPU.py", package = "scapGNN"))
+	}else{
+		source_python(system.file("python", "GraphAutoEncoder.py", package = "scapGNN"))
+	}
+
     if (verbose) {
       cat("Construct cell-cell association network  \n")
     }

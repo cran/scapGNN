@@ -4,7 +4,7 @@
 \alias{RWR}
 \title{Function that performs a random Walk with restart (RWR) on a given graph}
 \usage{
-RWR(W, ind.positives, gamma = 0.6, tmax = 1000, eps = 1e-10, norm = TRUE)
+RWR(W, ind.positives, gamma = 0.6)
 }
 \arguments{
 \item{W}{: adjacency matrix of the graph}
@@ -12,12 +12,6 @@ RWR(W, ind.positives, gamma = 0.6, tmax = 1000, eps = 1e-10, norm = TRUE)
 \item{ind.positives}{: indices of the "core" positive examples of the graph. They represent to the indices of W corresponding to the positive examples}
 
 \item{gamma}{: restart parameter (def: 0.6)}
-
-\item{tmax}{: maximum number of iterations (def: 1000)}
-
-\item{eps}{: maximum allowed difference between the computed probabilities at the steady state}
-
-\item{norm}{: if TRUE (def) the adjacency matrix W of the graph is normalized to M = D^-1 * W, otherwise it is assumed that the matrix W is just normalized}
 }
 \value{
 a list with three elements:
@@ -25,6 +19,8 @@ a list with three elements:
 - ind.positives : indices of the "core" positive examples of the graph (it is equal to the same
                  input parameter
 - n.iter : number of performed iterations
+
+a vector
 }
 \description{
 Function that performs a random Walk with restart (RWR) on a given graph

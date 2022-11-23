@@ -76,65 +76,42 @@ load_path_data = function(gmt_file_path){
   return (gsets)
 }
 
-
-#' Function that computes the norm 1 of a numeric vector
-#' @param x : numeric vector
-#' @return a single real value (the norm1 of the input vector)
-norm1 <- function(x) {
-  return(sum(abs(x)));
-}
-
-
 ##' Function that performs a random Walk with restart (RWR) on a given graph
 ##' @param W : adjacency matrix of the graph
 ##' @param ind.positives : indices of the "core" positive examples of the graph. They represent to the indices of W corresponding to the positive examples
 ##' @param gamma : restart parameter (def: 0.6)
-##' @param tmax : maximum number of iterations (def: 1000)
-##' @param eps : maximum allowed difference between the computed probabilities at the steady state
-##' @param norm : if TRUE (def) the adjacency matrix W of the graph is normalized to M = D^-1 * W, otherwise it is assumed that the matrix W is just normalized
-##'
 ##'
 ##' @return a list with three elements:
 ##' - p : the probability at the steady state
 ##' - ind.positives : indices of the "core" positive examples of the graph (it is equal to the same
 ##'                  input parameter
 ##' - n.iter : number of performed iterations
-##'
+##' @export
+##' @return a vector
 
-RWR <- function(W, ind.positives, gamma=0.6, tmax=1000, eps=1e-10, norm=TRUE) {
-  if (norm){
-    n <- nrow(W);
-    if (n != ncol(W)){
-      stop("first arg must be a square matrix")
-    }
-    names.var <- rownames(W);
-    diag.D <- apply(W,1,sum);
-    diag.D[diag.D==0] <- Inf;
-    inv.diag.D <- 1/diag.D;
+RWR <- function(W, ind.positives, gamma=0.6) {
+  n <- nrow(W);
+  names.var <- rownames(W);
+  diag.D <- apply(W,1,sum);
+  diag.D[diag.D==0] <- Inf;
+  inv.diag.D <- 1/diag.D;
 
-    M <-W*inv.diag.D # M = D^-1 * W
-  }else{
-    M <- W
-  }
+  M <-W*inv.diag.D # M = D^-1 * W
+
   n <- nrow(M)
   p0 <- p <- numeric(n)
   names(p) <- names(p0) <- rownames(W)
   rm(W)
   n.positives <- length(ind.positives)
-  if (n.positives == 0){
-    stop("RWR: number of core positives is equal to 0!")
-  }
+  p0[ind.positives] <- 1/n.positives
 
-  p0[ind.positives] <- 1/n.positives;
-
-  # M <- t(M);
   p <- p0;
-  for (t in 1:tmax) {
-    pold <- p;
+  for (t in 1:5000) {
+    pold <- p
     p <- ((1-gamma) * as.vector(pold %*% M)) + gamma * p0
-    if (norm1(p-pold) < eps){
+    if (sum(abs(p-pold)) < 1e-6){
       break()
     }
   }
-  return(list(p=p, ind.positives=ind.positives, n.iter=t))
+  return(p)
 }

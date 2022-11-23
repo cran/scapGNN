@@ -139,6 +139,10 @@ library(parallel)
 library(utils)
 # Load the result of the ConNetGNN function.
 data(ConNetGNN_data)
+# We recommend the use of a compiler.
+# The compiler package can be used to speed up the operation.
+# library(compiler)
+# scPathway<- cmpfun(scPathway) 
 scPathway_data<-scPathway(ConNetGNN_data,gmt.path=system.file("extdata", "KEGG_human.gmt", package = "scapGNN"),parallel.cores=1)
 ```
 

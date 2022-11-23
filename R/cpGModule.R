@@ -92,8 +92,8 @@ cpGModule<-function(network.data,cellset,nperm=100,cut.pvalue=0.01,cut.fdr=0.05,
   names(pp)<-cellset
   pp<-na.omit(pp)
 
-  resW <- RWR(cell_gene_network, pp, tmax = 5000, eps=1e-6, gamma=rwr.gamma,norm = T)
-  Actscores<-resW[["p"]][geneindex]
+  resW <- RWR(cell_gene_network, pp, gamma=rwr.gamma)
+  Actscores<-resW[geneindex]
 
   if (verbose) {
     cat("Start perturbation analysis \n")
@@ -104,8 +104,8 @@ cpGModule<-function(network.data,cellset,nperm=100,cut.pvalue=0.01,cut.fdr=0.05,
     #set.seed(seed)
     samplei<-sample(cellindex,size=length(pp))
     names(samplei)<-row.names(cell_gene_network)[samplei]
-    resW_rd <- RWR(cell_gene_network, samplei, tmax = 5000, eps=1e-6, gamma=rwr.gamma,norm = T)
-    return(resW_rd[["p"]][geneindex])
+    resW_rd <- RWR(cell_gene_network, samplei, gamma=rwr.gamma)
+    return(resW_rd[geneindex])
   },cellindex,pp,cell_gene_network,rwr.gamma,geneindex)
   stopCluster(cl)
   rdmatrix<-do.call("cbind",rdmatrix)

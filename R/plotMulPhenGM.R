@@ -58,14 +58,14 @@ plotMulPhenGM<-function(data.list,network.data,vertex.colors=NULL,vertex.size=10
   if(!isLoaded("igraph")){
     stop("The package igraph is not available!")
   }
-
+  
   if(!isLoaded("graphics")){
     stop("The package graphics is not available!")
   }
-
+  
   g_net<-network.data[[2]]
   diag(g_net)<-0
-
+  
   qc<-NULL
   for(i in 1:length(data.list)){
     if(nrow(data.list[[i]])==0){
@@ -75,13 +75,13 @@ plotMulPhenGM<-function(data.list,network.data,vertex.colors=NULL,vertex.size=10
   if(is.null(qc)==FALSE){
     data.list<-data.list[-qc]
   }
-
-
+  
+  
   if(is.null(vertex.colors)){
     vertex.colors<-rainbow(length(data.list))
   }
-
-
+  
+  
   ig<-NULL
   qc<-NULL
   ig_p<-NULL
@@ -95,28 +95,28 @@ plotMulPhenGM<-function(data.list,network.data,vertex.colors=NULL,vertex.size=10
   if(is.null(qc)==FALSE){
     data.list<-data.list[-qc]
   }
-
+  
   allgenes<-NULL
   allsubg<-list()
   for(i in 1:length(data.list)){
     pp<-match(data.list[[i]]$Genes,row.names(g_net))
     subg<-g_net[pp,pp]
-
+    
     allsubg[[i]]<-graph_from_adjacency_matrix(subg,mode="undirected",weighted=TRUE,diag=TRUE)
     allgenes<-c(allgenes,data.list[[i]]$Genes)
-
+    
   }
   ggraph<-graph.union(allsubg)
-
+  
   alladj<-as_adjacency_matrix(ggraph)
   for(i in 1:length(data.list)){
     alladj1<-as_adjacency_matrix(ggraph,attr=paste("weight",i,sep = "_"),sparse=FALSE)
     alladj1[is.na(alladj1)]<-1
     alladj<-alladj*alladj1
   }
-
+  
   allgenes<-unique(allgenes)
-
+  
   node.atlist<-list()
   for(i in 1:length(allgenes)){
     gene<-allgenes[i]
@@ -134,14 +134,14 @@ plotMulPhenGM<-function(data.list,network.data,vertex.colors=NULL,vertex.size=10
     node.atlist[[i]]<-values
   }
   names(node.atlist)<-allgenes
-
+  
   if(length(ig)>=1){
     for(j in 1:length(ig)){
       pp<-which(names(node.atlist)==ig[j])
       if(pp>0){
         temp<-0
         names(temp)<-ig_p[j]
-
+        
         for(i in 1:length(node.atlist)){
           if(i==pp){
             temp1<-1
@@ -156,33 +156,31 @@ plotMulPhenGM<-function(data.list,network.data,vertex.colors=NULL,vertex.size=10
         for(i in 1:length(node.atlist)){
           node.atlist[[i]]<-c(node.atlist[[i]],temp)
         }
-
+        
         temp1<-rep(0,length(node.atlist[[1]]))
         names(temp1)<-names(node.atlist[[1]])
         temp1[length(temp1)]<-1
         node.atlist[[i+1]]<-temp1
-
+        
         alladj<-cbind(alladj,rep(0,nrow(alladj)))
         alladj<-rbind(alladj,rep(0,ncol(alladj)))
         row.names(alladj)[nrow(alladj)]<-ig[j]
         colnames(alladj)[ncol(alladj)]<-ig[j]
       }
-
+      
     }
-
+    
   }
-
+  
   net<-graph_from_adjacency_matrix(as.matrix(alladj),mode="undirected",weighted=TRUE,diag=TRUE)
-
+  
   phen<-NULL
   if(length(names(vertex.colors))>0){
     for(i in 1:length(node.atlist)){
       pp<-match(names(vertex.colors),names(node.atlist[[i]]))
-	  qc<-which(is.na(pp)==TRUE)
-      pp<-pp[-qc]
-	  vertex.colors<-vertex.colors[-qc]
+      pp<-na.omit(pp)
       node.atlist[[i]]<-node.atlist[[i]][pp]
-	  phen<-c(phen,names(node.atlist[[i]]))
+      phen<-c(phen,names(node.atlist[[i]]))
     }
   }
   phen<-unique(phen)
@@ -191,7 +189,8 @@ plotMulPhenGM<-function(data.list,network.data,vertex.colors=NULL,vertex.size=10
   if(length(qc)>0){
     vertex.colors<-vertex.colors[-qc]
   }
-
+  
+  
   if(plotgraph){
     plot(ggraph, vertex.shape="pie", vertex.pie=node.atlist, vertex.pie.color=list(vertex.colors),
          vertex.size=vertex.size,vertex.label.cex=vertex.label.cex,vertex.label.dist= vertex.label.dist,
@@ -203,3 +202,4 @@ plotMulPhenGM<-function(data.list,network.data,vertex.colors=NULL,vertex.size=10
     return(list(graph=net,Node_weight=node.atlist))
   }
 }
+

@@ -74,10 +74,10 @@ plotGANetwork<-function(network.data,cellset,geneset,rwr.gamma=0.7,vertex.colors
   names(pp)<-cellset
   pp<-na.omit(pp)
 
-  resW <- RWR(cell_gene_network, pp, tmax = 5000, eps=1e-6, gamma=rwr.gamma,norm = T)
+  resW <- RWR(cell_gene_network, pp,gamma=rwr.gamma)
   pp<-match(geneset,row.names(cell_gene_network))
   pp<-na.omit(pp)
-  geneW<-resW[["p"]][pp]
+  geneW<-resW[pp]
 
   net<-graph_from_adjacency_matrix(cell_gene_network,mode="undirected",weighted=TRUE,diag=TRUE)
 
