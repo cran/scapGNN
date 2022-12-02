@@ -1,4 +1,4 @@
-8fb20ce189c3baa81d8cd5a449b1ff7f *DESCRIPTION
+a4b46364ec4459d3ef28d0e99237dd69 *DESCRIPTION
 ec82834f19ede6871cc2afc4816ce9a7 *NAMESPACE
 44a219e0b7bc0c880b118a453659316e *R/ConNetGNN.R
 e77cd36cef424cea5e4ab16a84ae0f86 *R/InteNet.R
@@ -23,7 +23,7 @@ e54e60b6892f1c15e7189f0e64016403 *data/RNA_ATAC_IntNet.rda
 2cc579a5937bad9bc9467724a5ad6b46 *data/scPathway_data.rda
 ce183f7c947773bfb0932a4d11bd67f4 *inst/doc/vignette.R
 c6082185092f5803a6750bd5d0934178 *inst/doc/vignette.Rmd
-854dfd758d009cb6c842f83f60379d01 *inst/doc/vignette.html
+654c3aef71e20d0fc4937d39ecb81d21 *inst/doc/vignette.html
 446d335caf3e600318086bd5cd70a05a *inst/extdata/KEGG_human.gmt
 72b7d24a4cb62dbae8a1ba52a19612d7 *inst/extdata/KEGG_mouse.gmt
 9625050bc83f2184671eac038fa2376c *inst/extdata/c2.kegg.gmt
@@ -33,7 +33,7 @@ f259321b065180b8fc3e887a4e8cf74e *inst/extdata/heatmap.png
 fb9baa9dad8ffedc87aaccadbf852f0b *inst/extdata/scapGNN_env.yaml
 39b60ddd6ba27ede2bdade8e60924ae3 *inst/python/AutoEncoder.py
 06e6459d5a0556c14a0f3603ea141f05 *inst/python/AutoEncoder_GPU.py
-3853544cbfa8b9d85fe320f8bd5ae95b *inst/python/GraphAutoEncoder.py
+d93170831fe41da5d0d3dc416f9216b4 *inst/python/GraphAutoEncoder.py
 d93170831fe41da5d0d3dc416f9216b4 *inst/python/GraphAutoEncoder_GPU.py
 71140d4ebbec3f78798af77ac3f18f1b *man/ATAC_net.Rd
 09a87b9210f214919257216dc32bcce4 *man/BIC_LTMG.Rd

@@ -193,9 +193,6 @@ class GAE(nn.Module):
 
 
 def GAE_function(net_m, feature_m, use_model = True, GAE_epochs = 300, GAE_learning_rate = 0.01, seed = 1217, ratio_val=0.05):
-    if torch.cuda.device_count() > 1:
-        print("Let's use", torch.cuda.device_count(), "GPUs!")
-    
     net_m = sp.coo_matrix(net_m)
 
     idx = np.argwhere(np.all(feature_m[..., :] == 0, axis=0))
@@ -248,19 +245,11 @@ def GAE_function(net_m, feature_m, use_model = True, GAE_epochs = 300, GAE_learn
     else:
         model = GAE(adj=adj_norm, input_dim=input_dim, hidden1_dim=hidden1_dim, hidden2_dim=hidden2_dim)
         optimizer = Adam(model.parameters(), lr=GAE_learning_rate)
-    
-    if torch.cuda.is_available():
-        model = model.cuda()
-        features = features.cuda()
-    
+
     min_loss_val = 10000
     #broc = 0
     for epoch in range(int(GAE_epochs)):
         A_pred, z = model(features)
-        
-        if torch.cuda.is_available():
-            A_pred=A_pred.cpu()
-            z=z.cpu
         optimizer.zero_grad()
         loss = log_lik = norm * F.binary_cross_entropy(A_pred.view(-1), adj_label.to_dense().view(-1),
                                                        weight=weight_tensor)
@@ -268,10 +257,7 @@ def GAE_function(net_m, feature_m, use_model = True, GAE_epochs = 300, GAE_learn
             kl_divergence = 0.5 / A_pred.size(0) * (
                         1 + 2 * model.logstd - model.mean ** 2 - torch.exp(model.logstd) ** 2).sum(1).mean()
             loss -= kl_divergence
-            
-        if torch.cuda.is_available():
-            loss = loss.cuda()
-            
+
         loss.backward()
         optimizer.step()
 
