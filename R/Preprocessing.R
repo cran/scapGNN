@@ -5,6 +5,7 @@
 ##' @description This function is to prepare data for the \code{ConNetGNN} function.
 ##'
 ##' @param data The input data should be a data frame or a matrix where the rows are genes and the columns are cells. The \code{seurat} object are also accepted.
+##' @param parallel.cores Number of processors to use when doing the calculations in parallel (default: \code{2}). If \code{parallel.cores=0}, then it will use all available core processors unless we set this argument with a smaller number.
 ##' @param verbose Gives information about each step. Default: \code{TRUE}.
 ##'
 ##' @details
@@ -24,48 +25,58 @@
 ##'
 ##' @importFrom coop tpcor
 ##' @importFrom methods new
+##' @importFrom parallel makeCluster
+##' @importFrom parallel clusterExport
+##' @importFrom parallel parLapply
+##' @importFrom parallel stopCluster
 ##'
 ##' @export
 ##'
 ##' @examples
-##' \dontrun{
+##'
 ##' # Load dependent packages.
-##' require(coop)
+##' # require(coop)
 ##'
 ##' # Seurat data processing.
-##' require(Seurat)
+##' # require(Seurat)
 ##'
 ##' # Load the PBMC dataset (Case data for seurat)
-##' pbmc.data <- Read10X(data.dir = "../data/pbmc3k/filtered_gene_bc_matrices/hg19/")
+##' # pbmc.data <- Read10X(data.dir = "../data/pbmc3k/filtered_gene_bc_matrices/hg19/")
 ##'
 ##' # Our recommended data filtering is that only genes expressed as non-zero in more than
 ##' # 1% of cells, and cells expressed as non-zero in more than 1% of genes are kept.
 ##' # In addition, users can also filter mitochondrial genes according to their own needs.
-##' pbmc <- CreateSeuratObject(counts = pbmc.data, project = "case",
-##'                                     min.cells = 3, min.features = 200)
-##' pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
-##' pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
+##' # pbmc <- CreateSeuratObject(counts = pbmc.data, project = "case",
+##' #                                     min.cells = 3, min.features = 200)
+##' # pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
+##' # pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
 ##'
 ##' # Normalizing the data.
-##' pbmc <- NormalizeData(pbmc, normalization.method = "LogNormalize")
+##' # pbmc <- NormalizeData(pbmc, normalization.method = "LogNormalize")
 ##'
 ##' # Identification of highly variable features.
-##' pbmc <- FindVariableFeatures(pbmc, selection.method = 'vst', nfeatures = 2000)
+##' # pbmc <- FindVariableFeatures(pbmc, selection.method = 'vst', nfeatures = 2000)
 ##'
 ##' # Run Preprocessing.
-##' Prep_data <- Preprocessing(pbmc)
+##' # Prep_data <- Preprocessing(pbmc)
 ##'
-##' }
+##'
 ##'
 ##' # Users can also directly input data
 ##' # in data frame or matrix format
 ##' # containing highly variable genes.
 ##' data("Hv_exp")
-##' Prep_data <- Preprocessing(Hv_exp[1:300,])
+##' Hv_exp <- Hv_exp[,1:20]
+##' Hv_exp <- Hv_exp[which(rowSums(Hv_exp) > 0),]
+##' Prep_data <- Preprocessing(Hv_exp[1:10,])
 
-Preprocessing<-function(data,verbose=TRUE){
+Preprocessing<-function(data,parallel.cores=1,verbose=TRUE){
   if(!isLoaded("coop")){
     stop("The package coop is not available!")
+  }
+
+  if(!isLoaded("parallel")){
+    stop("The package parallel is not available!")
   }
 
   if(sum(grep("Seurat",class(data)))!=0){
@@ -101,7 +112,10 @@ Preprocessing<-function(data,verbose=TRUE){
   cellnet[cellnet<0]<-0
   diag(cellnet)<-0
 
-  cellnet_p<-t(apply(cellnet,1,function(x){
+  cl <- makeCluster(parallel.cores)
+
+  cellnet_p<-parLapply(cl,1:nrow(cellnet),function(i,cellnet){
+    x <- cellnet[i,]
     len<-length(which(x>0))
     x1<-rep(0,length(x))
 
@@ -117,7 +131,8 @@ Preprocessing<-function(data,verbose=TRUE){
     }
     x1[x1>0.05]<-0
     return(x1)
-  }))
+  },cellnet)
+  cellnet_p<-do.call("rbind",cellnet_p)
 
   x<-cellnet_p
   x[upper.tri(x)] <- 0
@@ -131,6 +146,11 @@ Preprocessing<-function(data,verbose=TRUE){
   cellnet_p<-cellnet_p+t(cellnet_p)
   cellnet<-cellnet*cellnet_p
 
+  rm(cellnet_p)
+  rm(x)
+  rm(s)
+  gc()
+
   if (verbose) {
     cat("Calculate gene correlation matrix \n")
   }
@@ -138,7 +158,8 @@ Preprocessing<-function(data,verbose=TRUE){
   genenet[genenet<0]<-0
   diag(genenet)<-0
 
-  genenet_p<-t(apply(genenet,1,function(x){
+  genenet_p<-parLapply(cl,1:nrow(genenet),function(i,genenet){
+    x <- genenet[i,]
     len<-length(which(x>0))
     x1<-rep(0,length(x))
 
@@ -154,7 +175,9 @@ Preprocessing<-function(data,verbose=TRUE){
     }
     x1[x1>0.05]<-0
     return(x1)
-  }))
+  },genenet)
+  genenet_p<-do.call("rbind",genenet_p)
+  stopCluster(cl)
 
   x<-genenet_p
   x[upper.tri(x)] <- 0
